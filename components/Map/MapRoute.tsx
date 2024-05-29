@@ -7,8 +7,11 @@ function MapRoute(props: any) {
             <Source type='geojson'
                 data={{
                     type: 'Feature',
-                    geometry:
-                        { type: 'LineString', coordinates: props.coordinates }
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: props.coordinates
+                    },
+                    properties: {}  // Adding an empty properties object
                 }}>
                 <Layer
                     type='line'
