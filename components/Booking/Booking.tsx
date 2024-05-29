@@ -18,7 +18,7 @@ export const Booking = () => {
         <Cards />
         <button className={`w-full bg-yellow-400 rounded-md mt-4 p-1 ${!carAmount ? 'bg-gray-200' : null}`}
           disabled={!carAmount}
-          onClick={() => router.push('./payment')}>Book</button>
+          onClick={() => router.push('./payment')} >Book</button>
       </div>
     </div>
   )

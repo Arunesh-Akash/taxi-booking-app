@@ -2,20 +2,15 @@
 import CheckoutForm from '../../components/Payment/CheckoutForm'
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import React, { useContext } from 'react'
+import React from 'react'
 
 function Payment() {
-    const stripePromise = loadStripe('pk_test_51PKxIESHUYC3IlZExvLb7zM8lyV2S94KV06Zhm0P0id8G7WrCzGfZKpIjuTxd5KHHDyXd7H0zkLxnbej7769Mz6200zkcB2OlC')
+
+    const stripePromise = loadStripe('pk_test_51PLWLXSENmD9TQa7YyWLjlTnr09DUEcWBw3qM5JlRUUvklmfYiANxKraP8z420LGQuqLDaP6uiZnFWMmlRuRVZwE00GlVobxy7')
     const options: any = {
         mode: 'payment',
-        amount: 4500,
-        currency: 'inr',
-        layout: {
-            type: 'accordion',
-            defaultCollapsed: false,
-            radios: false,
-            spacedAccordionItems: true
-        }
+        amount: 10,
+        currency: 'usd',
     }
     return (
         <Elements stripe={stripePromise} options={options}>

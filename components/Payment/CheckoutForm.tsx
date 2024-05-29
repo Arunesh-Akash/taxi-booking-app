@@ -1,48 +1,65 @@
 "use client"
-import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
-import React from 'react'
+import { CarAmountContext } from '@/context/CarAmountContext';
+import { useUser } from '@clerk/nextjs';
+import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import React, { useContext } from 'react';
 
-function CheckoutForm() {
-    const stripe = useStripe()
-    const elements = useElements()
+const CheckoutForm = () => {
 
-    const handleSubmit = async (e: any) => {
+    const stripe = useStripe();
+    const elements = useElements();
+    const { user } = useUser();
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (elements == null) {
+        if (!elements || !stripe) {
             return;
         }
-        if(!stripe){
-            return;
-        }
+
         const { error: submitError } = await elements.submit();
         if (submitError) {
-            return
+            console.error(submitError.message);
+            return;
         }
-        const res = await fetch("http://localhost:3000/api/create-intent", {
-            method: "POST",
-            body: JSON.stringify({
-                amount: 58
-            }),
-            headers:{
-                'Content-Type':'application/json'
+
+        try {
+            const name = user ? user.fullName : 'Unknown';
+
+            const res = await fetch("http://localhost:3000/api/create-intent", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    amount: 100,
+                    name: name,
+                })
+            });
+
+            if (!res.ok) {
+                throw new Error('Network response was not ok');
             }
-        })
-        const {client_secret: clientSecret} = await res.json();
-        const { error } = await stripe.confirmPayment(
-            {
+
+            const data = await res.json();
+            const { client_secret: clientSecret } = data;
+
+            const { error } = await stripe.confirmPayment({
                 clientSecret,
                 elements,
                 confirmParams: {
                     return_url: "http://localhost:3000",
                 },
+            });
+
+            if (error) {
+                console.error(error.message);
+            } else {
+                console.log('Payment successfully');
             }
-        )
-        if(error){
-            console.log(error)
+        } catch (error) {
+            console.error('Error during fetch or payment confirmation:', error);
         }
-
-    }
-
+    };
 
     return (
         <div className='flex flex-col justify-center items-center w-full mt-6'>
@@ -53,50 +70,7 @@ function CheckoutForm() {
                 </button>
             </form>
         </div>
-    )
-}
+    );
+};
 
-export default CheckoutForm
-
-
-// if (!stripe || !elements) {
-//     return;
-// }
-
-// const result = await stripe.confirmPayment({
-//     elements,
-//     confirmParams: {
-//         return_url: "http://localhost:3000",
-//     },
-// });
-
-
-// if (result.error) {
-//     console.log(result.error.message);
-// } else {
-//     console.log(result);
-// }
-//2nd method
-// if (elements == null) {
-//     return;
-// }
-// const { error: submitError } = await elements.submit();
-// if (submitError) {
-//     return
-// }
-// const res = await fetch("http://localhost:3000/api/create-intent", {
-//     method: "POST",
-//     body: JSON.stringify({
-//         amount: 58
-//     })
-// })
-// const sec = await res.json();
-// const { error } = await stripe.confirmPayment(
-//     {
-//         clientSecret: sec,
-//         elements,
-//         confirmParams: {
-//             return_url: "http://localhost:3000",
-//         },
-//     }
-// )
+export default CheckoutForm;
