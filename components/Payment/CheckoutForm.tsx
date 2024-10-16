@@ -1,7 +1,7 @@
 "use client"
-import { CarAmountContext } from '@/context/CarAmountContext';
 import { useUser } from '@clerk/nextjs';
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { url } from 'inspector';
 import React, { useContext } from 'react';
 
 const CheckoutForm = () => {
@@ -25,7 +25,7 @@ const CheckoutForm = () => {
         try {
             const name = user ? user.fullName : 'Unknown';
 
-            const res = await fetch("http://localhost:3000/api/create-intent", {
+            const res = await fetch("http://localhost:3000/api/create-checkout-session", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -41,6 +41,7 @@ const CheckoutForm = () => {
             }
 
             const data = await res.json();
+
             const { client_secret: clientSecret } = data;
 
             const { error } = await stripe.confirmPayment({
@@ -70,6 +71,7 @@ const CheckoutForm = () => {
                 </button>
             </form>
         </div>
+
     );
 };
 
